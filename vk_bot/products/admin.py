@@ -97,10 +97,7 @@ class ProductAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            "fields": ("name", "article", "category", "description", "tag")
-        }),
-        ("Скидки", {
-            "fields": ("promotion_group",)
+            "fields": ("name", "article", "category", "description")
         }),
         ("Склад", {
             "fields": ("price", "flag_limit")

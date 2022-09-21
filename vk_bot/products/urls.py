@@ -1,9 +1,8 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.conf import settings
-from django.conf.urls.static import static
+from products.views import ProductDetailView, BaseProductListView
 
 urlpatterns = [
-    # path('admin/', admin.site.urls),
-    # path('products/', include('products.urls')),
+    path('list/', BaseProductListView.as_view()),
+    path('<int:pk>/', ProductDetailView.as_view()),
 ]

@@ -90,8 +90,6 @@ class Property(models.Model):
         return f"{self.name}"
 
 
-
-
 class PropertyProduct(models.Model):
     """
     Связующая модель для товаров и их свойств.
@@ -183,4 +181,3 @@ class ProductPhoto(models.Model):
     class Meta:
         verbose_name = _('фото товара')
         verbose_name_plural = _('фото товаров')
-
