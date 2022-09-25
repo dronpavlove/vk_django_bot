@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin import TabularInline
 from django.db.models import QuerySet
-from django.http import HttpRequest
+from django.http import HttpRequest, HttpResponseRedirect
 from django.template.defaultfilters import truncatewords
 from django.urls import reverse
 from django.utils.html import format_html
@@ -93,6 +93,9 @@ class ProductAdmin(admin.ModelAdmin):
 
     readonly_fields = ("rating",)
 
+    change_list_template = "admin/my_change_list.html"
+    change_form_template = "admin/my_change_form.html"
+
     actions = ['mark_as_item_flag_y', 'mark_as_item_flag_n']
 
     inlines = (PropertyProductInline, ProductPhotoInline)
@@ -117,6 +120,11 @@ class ProductAdmin(admin.ModelAdmin):
 
     mark_as_item_flag_y.short_description = 'Показывать в витрине ВК'
     mark_as_item_flag_n.short_description = 'Не показывать в витрине ВК'
+
+    def response_change(self, request, obj):
+        if '_update_cache' in request.POST:
+            return HttpResponseRedirect("/products/update_cache")
+        return super().response_change(request, obj)
 
     class Media:
         js = ('autocomplete_all/js/autocomplete_all.js', 'products/js/filter-props-by-category.js')
