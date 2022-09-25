@@ -93,6 +93,8 @@ class ProductAdmin(admin.ModelAdmin):
 
     readonly_fields = ("rating",)
 
+    actions = ['mark_as_item_flag_y', 'mark_as_item_flag_n']
+
     inlines = (PropertyProductInline, ProductPhotoInline)
 
     fieldsets = (
@@ -106,6 +108,15 @@ class ProductAdmin(admin.ModelAdmin):
             "fields": ("rating",),
         }),
     )
+
+    def mark_as_item_flag_y(self, request, queryset):  # что делать при выборе действия
+        queryset.update(flag_limit=True)
+
+    def mark_as_item_flag_n(self, request, queryset):
+        queryset.update(flag_limit=False)
+
+    mark_as_item_flag_y.short_description = 'Показывать в витрине ВК'
+    mark_as_item_flag_n.short_description = 'Не показывать в витрине ВК'
 
     class Media:
         js = ('autocomplete_all/js/autocomplete_all.js', 'products/js/filter-props-by-category.js')
