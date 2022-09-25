@@ -1,6 +1,8 @@
 import time
 import vk_api
 from vk_api import VkUpload
+from django.core.cache import cache
+from django.http import HttpResponse
 from django.conf import settings
 from products.views import get_products_dict, get_category_dict
 
@@ -8,8 +10,6 @@ vk_session = vk_api.VkApi(token=settings.VK_TOKEN)
 vk = vk_session.get_api()
 vk_upload = VkUpload(vk)
 
-full_products = dict()
-sections = dict()
 timer = 0
 
 
@@ -44,7 +44,7 @@ def button_response(section_id: int):
 	products = get_product_objects(section_id)
 
 	if len(products) == 0:
-		return {'message': 'В базе продукция сейчас не найдена. Попробуйте позже...', 'attachment': '543'}
+		yield {'message': 'В базе продукция сейчас не найдена. Попробуйте позже...', 'attachment': '543'}
 	else:
 		for product in products:
 			text = str(product['name']) + '\n' + str(product['description'])
@@ -56,7 +56,7 @@ def get_product_objects(section: int):
 	"""
 	Возвращает список продукции в зависимости от выбранной категории.
 	"""
-
+	full_products = cache.get_or_set('full_products', {})
 	if edit_timer() is True or section not in full_products:
 		update_data()
 	products = full_products[section]
@@ -67,6 +67,7 @@ def get_section_dict():
 	"""
 	Возвращает список разделов.
 	"""
+	sections = cache.get_or_set('sections', {})
 	if edit_timer() is True or len(sections) == 0:
 		update_data()
 	return sections
@@ -110,15 +111,14 @@ def send_photo(url):
 	return attachment
 
 
-def update_data():
+def update_data(request=None):
 	"""
 	Возвращает список продукции в зависимости от выбранной категории.
 	Обращается или к БД (длительный процесс),
 	или к глобальной переменной (для ускорения процесса)
 	"""
-	global full_products
-	global sections
-	sections = get_category_dict()
+	full_products = cache.get_or_set('full_products', {})
+	sections = cache.get_or_set('section', get_category_dict())
 	for section_id in sections.values():
 		product_list = get_products_dict(section_id)
 		if section_id not in full_products:
@@ -138,3 +138,6 @@ def update_data():
 						'attachment': send_photo(product['photos'][0])
 					}
 					full_products[section_id].append(products)
+	cache.set('full_products', full_products)
+	cache.set('sections', sections)
+	return HttpResponse('Кэш обновился', status=200)

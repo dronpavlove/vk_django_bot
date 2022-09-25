@@ -43,7 +43,7 @@ class Product(models.Model):
                                 validators=[MinValueValidator(1)], verbose_name=_("цена"))
     rating = models.DecimalField(max_digits=12, decimal_places=2, default=0,
                                  validators=[MinValueValidator(0)], verbose_name=_("рейтинг"))
-    flag_limit = models.BooleanField(default=False, verbose_name=_("товар заканчивается"))
+    flag_limit = models.BooleanField(default=False, verbose_name=_("показывать в витрине"))
     category = models.ForeignKey("Category", on_delete=models.CASCADE,
                                  related_name="products", related_query_name="product",
                                  verbose_name=_("категория каталога"))
